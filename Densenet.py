@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
+
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 
@@ -95,7 +96,7 @@ tf.summary.scalar('loss', cost)
 tf.summary.scalar('accuracy', accuracy)
 
 saver = tf.train.Saver(tf.global_variables())
-training_epochs = 10
+training_epochs = 20
 
 with tf.Session() as sess :
     ckpt = tf.train.get_checkpoint_state('./model')
@@ -107,13 +108,12 @@ with tf.Session() as sess :
     merged = tf.summary.merge_all()
     writer = tf.summary.FileWriter('./logs', sess.graph)
 
-
+    global_step = 0
     for epoch in range(training_epochs) :
         total_batch = int(mnist.train.num_examples / batch_size)
 
         for step in range(total_batch) :
             batch_x, batch_y = mnist.train.next_batch(batch_size)
-
 
             feed_dict = {
                 x : batch_x,
@@ -122,17 +122,19 @@ with tf.Session() as sess :
 
 
 
-            _, loss = sess.run([train,cost], feed_dict=feed_dict)
+            _, loss= sess.run([train,cost], feed_dict=feed_dict)
             correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(y_, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            # writer.add_summary(graph, global_step=step)
 
 
 
             if step % 100 == 0 :
+                global_step += 100
                 train_summary, train_accuracy = sess.run([merged, accuracy], feed_dict=feed_dict)
                     # accuracy.eval(feed_dict=feed_dict)
                 print("Step:", step, "Loss:", loss, "Training accuracy:", train_accuracy)
-                writer.add_summary(train_summary, global_step=step)
+                writer.add_summary(train_summary, global_step=global_step)
 
             test_feed_dict = {
                 x : mnist.test.images,
@@ -140,13 +142,8 @@ with tf.Session() as sess :
             }
 
 
-        test_summary, accuracy_rates = sess.run([merged, accuracy], feed_dict=test_feed_dict)
+        accuracy_rates = sess.run(accuracy, feed_dict=test_feed_dict)
         print('Epoch:', '%04d' % (epoch + 1), '/ Accuracy =', accuracy_rates)
-        writer.add_summary(test_summary, global_step=epoch)
+        # writer.add_summary(test_summary, global_step=epoch)
 
     saver.save(sess=sess, save_path='./model/dense.ckpt')
-
-
-
-
-
