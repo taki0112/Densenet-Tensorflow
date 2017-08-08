@@ -1,7 +1,8 @@
 # Densenet-Tensorflow
 Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using **MNIST**
-* The code that implements this paper is ***Densenet.py***
-* The code that applied dropout is ***Densenet_dropout.py***
+* The code that implements *this paper* is ***Densenet.py***
+* The code that applied *dropout* is ***Densenet_dropout.py***
+* There is a *slight difference*, I used ***AdamOptimizer***
 
 ## Requirements
 * Tensorflow 1.x
