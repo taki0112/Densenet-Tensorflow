@@ -6,12 +6,16 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # Hyperparameter
 growth_k = 12
-nb_block = 3
+nb_block = 3 # how many (dense blokc + Transition Layer) ?
+init_learning_rate = 0.1
+nesterov_momentum = 0.9
+weight_decay = 1e-4
+
 class_num = 10
 batch_size = 100
 
 
-def conv_layer(input, filter, kernel, stride = [2,2], layer_name="conv") :
+def conv_layer(input, filter, kernel, stride = [1,1], layer_name="conv") :
     with tf.name_scope(layer_name) :
         network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
         return network
@@ -56,7 +60,7 @@ class DenseNet() :
 
             layers_concat.append(x)
 
-            for i in range(nb_layers) :
+            for i in range(nb_layers - 1) :
                 # print(i)
                 x = tf.concat(layers_concat, axis=3)
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i+1))
@@ -98,6 +102,7 @@ class DenseNet() :
 
 
 x = tf.placeholder(tf.float32, shape=[None, 784])
+learning_rate = tf.placeholder(tf.float32, name='learning_rate')
 batch_images = tf.reshape(x, [-1, 28, 28, 1])
 
 label = tf.placeholder(tf.float32, shape=[None, 10])
@@ -108,7 +113,11 @@ logits = DenseNet(x=batch_images, nb_blocks=nb_block, filters=growth_k).model
 
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=label, logits=logits))
-train = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(cost)
+
+l2_loss = tf.add_n([tf.nn.l2_loss(var) for var in tf.trainable_variables()])
+optimizer = tf.train.MomentumOptimizer(learning_rate=learning_rate, momentum=nesterov_momentum, use_nesterov=True)
+train = optimizer.minimize(cost + l2_loss * weight_decay)
+# train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
 correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(label, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -117,7 +126,7 @@ tf.summary.scalar('loss', cost)
 tf.summary.scalar('accuracy', accuracy)
 
 saver = tf.train.Saver(tf.global_variables())
-training_epochs = 10
+total_epochs = 10
 
 
 
@@ -132,8 +141,14 @@ with tf.Session() as sess :
     writer = tf.summary.FileWriter('./logs', sess.graph)
    #  writer2 = tf.summary.FileWriter('./temp', sess.graph)
 
+
     global_step = 0
-    for epoch in range(2) :
+    epoch_learning_rate = init_learning_rate
+    for epoch in range(total_epochs) :
+        if epoch == (total_epochs * 0.5) or epoch == (total_epochs * 0.75) :
+            epoch_learning_rate = epoch_learning_rate / 10
+
+
         total_batch = int(mnist.train.num_examples / batch_size)
 
         for step in range(total_batch) :
@@ -142,7 +157,8 @@ with tf.Session() as sess :
 
             feed_dict = {
                 x : batch_x,
-                label : batch_y
+                label : batch_y,
+                learning_rate : epoch_learning_rate
             }
 
 
@@ -162,7 +178,8 @@ with tf.Session() as sess :
 
             test_feed_dict = {
                 x : mnist.test.images,
-                label : mnist.test.labels
+                label : mnist.test.labels,
+                learning_rate: epoch_learning_rate
             }
 
 
