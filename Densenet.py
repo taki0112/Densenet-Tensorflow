@@ -105,17 +105,13 @@ class DenseNet() :
 
 
 x = tf.placeholder(tf.float32, shape=[None, 784])
-learning_rate = tf.placeholder(tf.float32, name='learning_rate')
 batch_images = tf.reshape(x, [-1, 28, 28, 1])
-
 
 label = tf.placeholder(tf.float32, shape=[None, 10])
 
+learning_rate = tf.placeholder(tf.float32, name='learning_rate')
 
 logits = DenseNet(x=batch_images, nb_blocks=nb_block, filters=growth_k).model
-
-
-
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=label, logits=logits))
 
 
@@ -151,7 +147,6 @@ with tf.Session() as sess :
 
     merged = tf.summary.merge_all()
     writer = tf.summary.FileWriter('./logs', sess.graph)
-   #  writer2 = tf.summary.FileWriter('./temp', sess.graph)
 
 
     global_step = 0
@@ -178,7 +173,7 @@ with tf.Session() as sess :
             _, loss = sess.run([train,cost], feed_dict=feed_dict)
             correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(label, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-            # writer.add_summary(loss_graph, global_step=step)
+            
 
 
             if step % 100 == 0 :
