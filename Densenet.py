@@ -8,6 +8,7 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 growth_k = 12
 nb_block = 3 # how many (dense blokc + Transition Layer) ?
 init_learning_rate = 1e-4
+epsilon = 1e-4 # AdamOptimizer epsilon
 
 # Momentum Optimizer will use
 nesterov_momentum = 0.9
@@ -125,7 +126,7 @@ init_learning_rate = 0.1
 but, I'll use AdamOptimizer
 """
 
-train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+train = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=epsilon).minimize(cost)
 
 correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(label, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
