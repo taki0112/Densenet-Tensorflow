@@ -40,7 +40,7 @@ class DenseNet() :
     def transition_layer(self, x, scope) :
         with tf.name_scope(scope) :
             x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu*(x)
+            x = tf.nn.relu(x)
             x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = tf.layers.average_pooling2d(inputs=x, pool_size=2, strides=2, padding='SAME')
 
