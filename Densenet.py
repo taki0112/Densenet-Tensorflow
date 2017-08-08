@@ -7,10 +7,13 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 # Hyperparameter
 growth_k = 12
 nb_block = 3 # how many (dense blokc + Transition Layer) ?
-init_learning_rate = 0.1
+init_learning_rate = 1e-4
+
+# Momentum Optimizer will use
 nesterov_momentum = 0.9
 weight_decay = 1e-4
 
+# Label & batch_size
 class_num = 10
 batch_size = 100
 
@@ -27,6 +30,7 @@ class DenseNet() :
         self.model = self.build_model(x)
 
     def bottleneck_layer(self, x, scope) :
+        
         # print(x)
         with tf.name_scope(scope) :
             x = tf.layers.batch_normalization(x)
@@ -39,6 +43,7 @@ class DenseNet() :
 
 
             # print(x)
+            
             return x
 
     def transition_layer(self, x, scope) :
@@ -47,8 +52,6 @@ class DenseNet() :
             x = tf.nn.relu(x)
             x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = tf.layers.average_pooling2d(inputs=x, pool_size=2, strides=2, padding='SAME')
-
-
             return x
 
     def dense_block(self, input_x, nb_layers, layer_name) :
@@ -61,7 +64,7 @@ class DenseNet() :
             layers_concat.append(x)
 
             for i in range(nb_layers - 1) :
-                # print(i)
+
                 x = tf.concat(layers_concat, axis=3)
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i+1))
                 layers_concat.append(x)
@@ -75,12 +78,12 @@ class DenseNet() :
 
         """
         for i in range(self.nb_blocks) :
-            # print(i)
             # 6 -> 12 -> 32
 
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
         """
+
 
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
         x = self.transition_layer(x, scope='trans_1')
@@ -105,6 +108,7 @@ x = tf.placeholder(tf.float32, shape=[None, 784])
 learning_rate = tf.placeholder(tf.float32, name='learning_rate')
 batch_images = tf.reshape(x, [-1, 28, 28, 1])
 
+
 label = tf.placeholder(tf.float32, shape=[None, 10])
 
 
@@ -114,10 +118,18 @@ logits = DenseNet(x=batch_images, nb_blocks=nb_block, filters=growth_k).model
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=label, logits=logits))
 
+
+"""
 l2_loss = tf.add_n([tf.nn.l2_loss(var) for var in tf.trainable_variables()])
 optimizer = tf.train.MomentumOptimizer(learning_rate=learning_rate, momentum=nesterov_momentum, use_nesterov=True)
 train = optimizer.minimize(cost + l2_loss * weight_decay)
-# train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+
+In paper, use MomentumOptimizer
+init_learning_rate = 0.1
+but, I'll use AdamOptimizer
+"""
+
+train = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 
 correct_prediction = tf.equal(tf.argmax(logits,1), tf.argmax(label, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
