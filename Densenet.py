@@ -18,16 +18,16 @@ class_num = 10
 batch_size = 100
 
 
-def conv_layer(input, filter, kernel, stride = [1,1], layer_name="conv") :
-    with tf.name_scope(layer_name) :
-        network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
-        return network
-
 class DenseNet() :
     def __init__(self, x, nb_blocks, filters) :
         self.nb_blocks = nb_blocks
         self.filters = filters
         self.model = self.build_model(x)
+
+    def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
+        with tf.name_scope(layer_name):
+            network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
+            return network
 
     def bottleneck_layer(self, x, scope) :
         
@@ -35,11 +35,11 @@ class DenseNet() :
         with tf.name_scope(scope) :
             x = tf.layers.batch_normalization(x)
             x = tf.nn.relu(x)
-            x = conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = self.conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
 
             x = tf.layers.batch_normalization(x)
             x = tf.nn.relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
+            x = self.conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
 
 
             # print(x)
@@ -50,7 +50,7 @@ class DenseNet() :
         with tf.name_scope(scope) :
             x = tf.layers.batch_normalization(x)
             x = tf.nn.relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = self.conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = tf.layers.average_pooling2d(inputs=x, pool_size=2, strides=2, padding='SAME')
             return x
 
@@ -73,7 +73,7 @@ class DenseNet() :
 
 
     def build_model(self, input_x) :
-        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = self.conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
         x = tf.layers.max_pooling2d(inputs=x, pool_size=3, strides=2, padding='SAME')
 
         """
@@ -173,7 +173,7 @@ with tf.Session() as sess :
             _, loss = sess.run([train,cost], feed_dict=feed_dict)
             correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(label, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-            
+
 
 
             if step % 100 == 0 :

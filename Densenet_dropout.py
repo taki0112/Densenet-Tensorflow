@@ -18,10 +18,7 @@ class_num = 10
 batch_size = 100
 
 
-def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
-    with tf.name_scope(layer_name):
-        network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
-        return network
+
 
 
 class DenseNet():
@@ -31,17 +28,22 @@ class DenseNet():
         self.training = training
         self.model = self.build_model(x)
 
+    def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
+        with tf.name_scope(layer_name):
+            network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
+            return network
+
     def bottleneck_layer(self, x, scope):
         # print(x)
         with tf.name_scope(scope):
             x = tf.layers.batch_normalization(x)
             x = tf.nn.relu(x)
-            x = conv_layer(x, filter=4 * self.filters, kernel=[1, 1], layer_name=scope + '_conv1')
+            x = self.conv_layer(x, filter=4 * self.filters, kernel=[1, 1], layer_name=scope + '_conv1')
             x = tf.layers.dropout(inputs=x, rate=dropout_rate, training=self.training)
 
             x = tf.layers.batch_normalization(x)
             x = tf.nn.relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=[3, 3], layer_name=scope + '_conv2')
+            x = self.conv_layer(x, filter=self.filters, kernel=[3, 3], layer_name=scope + '_conv2')
             x = tf.layers.dropout(inputs=x, rate=dropout_rate, training=self.training)
 
             # print(x)
@@ -52,7 +54,7 @@ class DenseNet():
         with tf.name_scope(scope):
             x = tf.layers.batch_normalization(x)
             x = tf.nn.relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=[1, 1], layer_name=scope + '_conv1')
+            x = self.conv_layer(x, filter=self.filters, kernel=[1, 1], layer_name=scope + '_conv1')
             # x = tf.layers.dropout(inputs=x, rate=dropout_rate, training=self.training)
             # maybe transition layer does not seem to use dropout.
             x = tf.layers.average_pooling2d(inputs=x, pool_size=2, strides=2, padding='SAME')
@@ -75,7 +77,7 @@ class DenseNet():
             return x
 
     def build_model(self, input_x):
-        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7, 7], layer_name='conv0')
+        x = self.conv_layer(input_x, filter=2 * self.filters, kernel=[7, 7], layer_name='conv0')
         x = tf.layers.max_pooling2d(inputs=x, pool_size=3, strides=2, padding='SAME')
 
 
