@@ -11,7 +11,7 @@ Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using 
 ## Results
 * This result does ***not use dropout***
 * The number of dense block layers is fixed to ***4***
-* The highest test accuracy is ***99.2%*** (epoch = 50)
+* The highest test accuracy is ***99.2%***
 
 ### Accuracy
 ![accuracy](./assests/acc.JPG)
