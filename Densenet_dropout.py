@@ -173,7 +173,12 @@ init_learning_rate = 0.1
 but, I'll use AdamOptimizer
 """
 
-train = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=epsilon).minimize(cost)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=epsilon)
+
+update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+with tf.control_dependencies(update_ops):
+    train = optimizer.minimize(cost)
+
 
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(label, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
