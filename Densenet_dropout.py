@@ -114,6 +114,7 @@ class DenseNet():
             for i in range(nb_layers - 1):
                 x = Concatenation(layers_concat)
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i + 1))
+                []
                 layers_concat.append(x)
 
             return x
@@ -149,7 +150,7 @@ class DenseNet():
         x = Global_Average_Pooling(x)
         x = Linear(x)
 
-        # x = tf.reshape(x, [-1, 10])
+        x = tf.reshape(x, [-1, 10])
         return x
 
 

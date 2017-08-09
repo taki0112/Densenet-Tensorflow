@@ -139,7 +139,7 @@ class DenseNet() :
         x = Global_Average_Pooling(x)
         x = Linear(x)
 
-        # x = tf.reshape(x, [-1,class_num])
+        x = tf.reshape(x, [-1,class_num])
         return x
 
 
