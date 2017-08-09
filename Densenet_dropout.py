@@ -1,15 +1,16 @@
 import tensorflow as tf
+from tflearn.layers.conv import global_avg_pool
 from tensorflow.examples.tutorials.mnist import input_data
+import numpy as np
 
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # Hyperparameter
 growth_k = 12
-nb_block = 3  # how many (dense blokc + Transition Layer) ?
+nb_block = 3 # how many (dense blokc + Transition Layer) ?
 init_learning_rate = 1e-4
 epsilon = 1e-4 # AdamOptimizer epsilon
 dropout_rate = 0.2
-
 
 # Momentum Optimizer will use
 nesterov_momentum = 0.9
@@ -20,6 +21,48 @@ class_num = 10
 batch_size = 100
 
 
+def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
+    with tf.name_scope(layer_name):
+        network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
+        return network
+
+
+def Global_Average_Pooling(x, stride=1):
+    """
+    width = np.shape(x)[1]
+    height = np.shape(x)[2]
+    pool_size = [width, height]
+    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride) # The stride value does not matter
+
+    It is global average pooling without tflearn
+    """
+
+    return global_avg_pool(x, name='Global_avg_pooling')
+    # But maybe you need to install h5py and curses or not
+
+
+def Batch_Normalization(x, training):
+    return tf.layers.batch_normalization(x, training=training)
+
+def Drop_out(x, rate, training) :
+    return tf.layers.dropout(inputs=x, rate=rate, training=training)
+
+def Relu(x):
+    return tf.nn.relu(x)
+
+
+def Average_pooling(x, pool_size=2, stride=2, padding='SAME'):
+    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
+
+
+def Max_Pooling(x, pool_size=3, stride=2, padding='SAME'):
+    return tf.layers.max_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
+
+def Concatenation(layers) :
+    return tf.concat(layers, axis=3)
+
+def Fully_Connected_layer(x) :
+    return tf.layers.dense(inputs=x, units=class_num, name='fully_connected')
 
 
 
@@ -30,23 +73,19 @@ class DenseNet():
         self.training = training
         self.model = self.build_model(x)
 
-    def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
-        with tf.name_scope(layer_name):
-            network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
-            return network
 
     def bottleneck_layer(self, x, scope):
         # print(x)
         with tf.name_scope(scope):
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
-            x = self.conv_layer(x, filter=4 * self.filters, kernel=[1, 1], layer_name=scope + '_conv1')
-            x = tf.layers.dropout(inputs=x, rate=dropout_rate, training=self.training)
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = Drop_out(x, rate=dropout_rate, training=self.training)
 
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
-            x = self.conv_layer(x, filter=self.filters, kernel=[3, 3], layer_name=scope + '_conv2')
-            x = tf.layers.dropout(inputs=x, rate=dropout_rate, training=self.training)
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
+            x = Drop_out(x, rate=dropout_rate, training=self.training)
 
             # print(x)
 
@@ -54,12 +93,13 @@ class DenseNet():
 
     def transition_layer(self, x, scope):
         with tf.name_scope(scope):
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
-            x = self.conv_layer(x, filter=self.filters, kernel=[1, 1], layer_name=scope + '_conv1')
-            # x = tf.layers.dropout(inputs=x, rate=dropout_rate, training=self.training)
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = Drop_out(x, rate=dropout_rate, training=self.training)
             # maybe transition layer does not seem to use dropout.
-            x = tf.layers.average_pooling2d(inputs=x, pool_size=2, strides=2, padding='SAME')
+            x = Average_pooling(x, pool_size=2, stride=2)
+
             return x
 
     def dense_block(self, input_x, nb_layers, layer_name):
@@ -72,15 +112,15 @@ class DenseNet():
             layers_concat.append(x)
 
             for i in range(nb_layers - 1):
-                x = tf.concat(layers_concat, axis=3)
+                x = Concatenation(layers_concat)
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i + 1))
                 layers_concat.append(x)
 
             return x
 
     def build_model(self, input_x):
-        x = self.conv_layer(input_x, filter=2 * self.filters, kernel=[7, 7], layer_name='conv0')
-        x = tf.layers.max_pooling2d(inputs=x, pool_size=3, strides=2, padding='SAME')
+        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = Max_Pooling(x, pool_size=3, stride=2)
 
 
         """
@@ -104,12 +144,12 @@ class DenseNet():
 
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  # in paper, nb_layers = 32
-        x = tf.nn.relu(x)
-        x = tf.layers.average_pooling2d(inputs=x, pool_size=7, strides=2,
-                                        padding='SAME')  # pool = 7*7, global average pooling ...
-        x = tf.layers.dense(inputs=x, units=class_num, name='fully_connected')
 
-        x = tf.reshape(x, [-1, 10])
+        x = Relu(x)
+        x = Global_Average_Pooling(x)
+        x = Fully_Connected_layer(x)
+
+        # x = tf.reshape(x, [-1, 10])
         return x
 
 

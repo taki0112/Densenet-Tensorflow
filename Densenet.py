@@ -1,8 +1,9 @@
 import tensorflow as tf
+from tflearn.layers.conv import global_avg_pool
 from tensorflow.examples.tutorials.mnist import input_data
+import numpy as np
 
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
-
 
 # Hyperparameter
 growth_k = 12
@@ -19,28 +20,66 @@ class_num = 10
 batch_size = 100
 
 
+def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
+    with tf.name_scope(layer_name):
+        network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
+        return network
+
+
+def Global_Average_Pooling(x, stride=1):
+    """
+    width = np.shape(x)[1]
+    height = np.shape(x)[2]
+    pool_size = [width, height]
+    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride)
+
+    It is global average pooling without tflearn
+    """
+
+    return global_avg_pool(x, name='Global_avg_pooling')
+    # But maybe you need to install h5py and curses or not
+
+
+def Batch_Normalization(x, training):
+    return tf.layers.batch_normalization(x, training=training)
+
+
+def Relu(x):
+    return tf.nn.relu(x)
+
+
+def Average_pooling(x, pool_size=2, stride=2, padding='SAME'):
+    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
+
+
+def Max_Pooling(x, pool_size=3, stride=2, padding='SAME'):
+    return tf.layers.max_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
+
+def Concatenation(layers) :
+    return tf.concat(layers, axis=3)
+
+def Fully_Connected_layer(x) :
+    return tf.layers.dense(inputs=x, units=class_num, name='fully_connected')
+
 class DenseNet() :
-    def __init__(self, x, nb_blocks, filters) :
+    def __init__(self, x, nb_blocks, filters, training) :
         self.nb_blocks = nb_blocks
         self.filters = filters
+        self.training = training
         self.model = self.build_model(x)
 
-    def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
-        with tf.name_scope(layer_name):
-            network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
-            return network
 
     def bottleneck_layer(self, x, scope) :
         
         # print(x)
         with tf.name_scope(scope) :
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
-            x = self.conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
 
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
-            x = self.conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
 
 
             # print(x)
@@ -49,10 +88,10 @@ class DenseNet() :
 
     def transition_layer(self, x, scope) :
         with tf.name_scope(scope) :
-            x = tf.layers.batch_normalization(x)
-            x = tf.nn.relu(x)
-            x = self.conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
-            x = tf.layers.average_pooling2d(inputs=x, pool_size=2, strides=2, padding='SAME')
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = Average_pooling(x, pool_size=2, stride=2)
             return x
 
     def dense_block(self, input_x, nb_layers, layer_name) :
@@ -66,7 +105,7 @@ class DenseNet() :
 
             for i in range(nb_layers - 1) :
 
-                x = tf.concat(layers_concat, axis=3)
+                x = Concatenation(layers_concat)
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i+1))
                 layers_concat.append(x)
 
@@ -74,8 +113,8 @@ class DenseNet() :
 
 
     def build_model(self, input_x) :
-        x = self.conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
-        x = tf.layers.max_pooling2d(inputs=x, pool_size=3, strides=2, padding='SAME')
+        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = Max_Pooling(x, pool_size=3, stride=2)
 
         """
         for i in range(self.nb_blocks) :
@@ -96,11 +135,12 @@ class DenseNet() :
         x = self.transition_layer(x, scope='trans_3')
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final') # in paper, nb_layers = 32
-        x = tf.nn.relu(x)
-        x = tf.layers.average_pooling2d(inputs=x, pool_size=7, strides=2, padding='SAME') # pool = 7*7, global average pooling ...
-        x = tf.layers.dense(inputs=x, units=class_num, name='fully_connected')
 
-        x = tf.reshape(x, [-1,10])
+        x = Relu(x)
+        x = Global_Average_Pooling(x)
+        x = Fully_Connected_layer(x)
+
+        # x = tf.reshape(x, [-1,class_num])
         return x
 
 
@@ -110,9 +150,11 @@ batch_images = tf.reshape(x, [-1, 28, 28, 1])
 
 label = tf.placeholder(tf.float32, shape=[None, 10])
 
+training_flag = tf.placeholder(tf.bool)
+
 learning_rate = tf.placeholder(tf.float32, name='learning_rate')
 
-logits = DenseNet(x=batch_images, nb_blocks=nb_block, filters=growth_k).model
+logits = DenseNet(x=batch_images, nb_blocks=nb_block, filters=growth_k, training=training_flag).model
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=label, logits=logits))
 
 
@@ -163,15 +205,16 @@ with tf.Session() as sess :
             batch_x, batch_y = mnist.train.next_batch(batch_size)
 
 
-            feed_dict = {
-                x : batch_x,
-                label : batch_y,
-                learning_rate : epoch_learning_rate
+            train_feed_dict = {
+                x: batch_x,
+                label: batch_y,
+                learning_rate: epoch_learning_rate,
+                training_flag : True
             }
 
 
 
-            _, loss = sess.run([train,cost], feed_dict=feed_dict)
+            _, loss = sess.run([train,cost], feed_dict=train_feed_dict)
             correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(label, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -179,15 +222,16 @@ with tf.Session() as sess :
 
             if step % 100 == 0 :
                 global_step += 100
-                train_summary , train_accuracy = sess.run([merged,accuracy], feed_dict=feed_dict)
+                train_summary , train_accuracy = sess.run([merged,accuracy], feed_dict=train_feed_dict)
                     # accuracy.eval(feed_dict=feed_dict)
                 print("Step:", step, "Loss:", loss, "Training accuracy:", train_accuracy)
                 writer.add_summary(train_summary, global_step=epoch)
 
             test_feed_dict = {
-                x : mnist.test.images,
-                label : mnist.test.labels,
-                learning_rate: epoch_learning_rate
+                x: mnist.test.images,
+                label: mnist.test.labels,
+                learning_rate: epoch_learning_rate,
+                training_flag : False
             }
 
 
