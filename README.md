@@ -13,8 +13,8 @@ However, I implemented it using tf.layers, so don't worry
 And if you use tflearn, you may also need to install h5py and curses using pip.
 ```
 
-## Optional
-### What is the Global Average Pooling ? 
+## Idea
+### What is the "Global Average Pooling" ? 
 ```python
     width = np.shape(x)[1]
     height = np.shape(x)[2]
@@ -22,8 +22,21 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
     return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride)
 ````
 * If you use tflearn, please refer to this [link](http://tflearn.org/layers/conv/#global-average-pooling)
+
+### What is the "Dense Connectivity" ?
+![Dense_connectivity](./assests/densenet.JPG)
+
+### What is the "Densenet Architecture" ?
+![Dense_Architecture](./assests/densenet_Archi.JPG)
+
+### What is the "Dense Block" ?
+![Dense_block](./assests/Denseblock.JPG)
+
+## Compare Structure (CNN, ResNet, DenseNet)
+![compare](./assests/compare.JPG)
+
 ## Results
-* This result does ***not use dropout***
+* (***MNIST***) The highest test accuracy is ***99.2%*** (This result does ***not use dropout***)
 * The number of dense block layers is fixed to ***4***
 ```python
         for i in range(self.nb_blocks) :
@@ -32,13 +45,15 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
 ```
-* The highest test accuracy is ***99.2%***
 
-### Accuracy
-![accuracy](./assests/acc.JPG)
+### CIFAR-10
+![cifar_10](./assests/cifar_10.JPG)
 
-### Loss
-![Loss](./assests/loss.JPG)
+### CIFAR-100
+![cifar_100](./assests/cifar_100.JPG)
+
+### Image Net
+![image_net](./assests/Image_net.JPG)
 
 
 ## Author
