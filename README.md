@@ -47,13 +47,13 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ```
 
 ### CIFAR-10
-![cifar_10](./assests/cifar_10.JPG)
+![cifar_10](./assests/cifar_10_.JPG)
 
 ### CIFAR-100
-![cifar_100](./assests/cifar_100.JPG)
+![cifar_100](./assests/cifar_100_.JPG)
 
 ### Image Net
-![image_net](./assests/Image_net.JPG)
+![image_net](./assests/Image_net_.JPG)
 
 
 ## Author
