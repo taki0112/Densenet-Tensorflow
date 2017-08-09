@@ -47,7 +47,7 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  
         x = Relu(x)
         x = Global_Average_Pooling(x)
-        x = Fully_Connected_layer(x)
+        x = Linear(x)
 
         return x
 ```
