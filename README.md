@@ -16,10 +16,11 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ## Idea
 ### What is the "Global Average Pooling" ? 
 ```python
+def Global_Average_Pooling(x, stride=1) :
     width = np.shape(x)[1]
     height = np.shape(x)[2]
     pool_size = [width, height]
-    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride)
+    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride) # The stride value does not matter
 ````
 * If you use tflearn, please refer to this [link](http://tflearn.org/layers/conv/#global-average-pooling)
 
@@ -28,6 +29,27 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 
 ### What is the "Densenet Architecture" ?
 ![Dense_Architecture](./assests/densenet_Archi.JPG)
+```python
+    def Dense_net(self, input_x):
+        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = Max_Pooling(x, pool_size=3, stride=2)
+
+        x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
+        x = self.transition_layer(x, scope='trans_1')
+
+        x = self.dense_block(input_x=x, nb_layers=12, layer_name='dense_2')
+        x = self.transition_layer(x, scope='trans_2')
+
+        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_3')
+        x = self.transition_layer(x, scope='trans_3')
+
+        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  
+        x = Relu(x)
+        x = Global_Average_Pooling(x)
+        x = Fully_Connected_layer(x)
+
+        return x
+```
 
 ### What is the "Dense Block" ?
 ![Dense_block](./assests/Denseblock.JPG)
@@ -56,11 +78,11 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 * (***MNIST***) The highest test accuracy is ***99.2%*** (This result does ***not use dropout***)
 * The number of dense block layers is fixed to ***4***
 ```python
-        for i in range(self.nb_blocks) :
-            # original : 6 -> 12 -> 32
+    for i in range(self.nb_blocks) :
+        # original : 6 -> 12 -> 32
 
-            x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
-            x = self.transition_layer(x, scope='trans_'+str(i))
+        x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
+        x = self.transition_layer(x, scope='trans_'+str(i))
 ```
 
 ### CIFAR-10
