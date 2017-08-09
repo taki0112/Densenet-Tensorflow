@@ -31,6 +31,23 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 
 ### What is the "Dense Block" ?
 ![Dense_block](./assests/Denseblock.JPG)
+```python
+    def dense_block(self, input_x, nb_layers, layer_name):
+        with tf.name_scope(layer_name):
+            layers_concat = list()
+            layers_concat.append(input_x)
+
+            x = self.bottleneck_layer(input_x, scope=layer_name + '_bottleN_' + str(0))
+
+            layers_concat.append(x)
+
+            for i in range(nb_layers - 1):
+                x = Concatenation(layers_concat)
+                x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i + 1))
+                layers_concat.append(x)
+
+            return x
+```
 
 ## Compare Structure (CNN, ResNet, DenseNet)
 ![compare](./assests/compare.JPG)
