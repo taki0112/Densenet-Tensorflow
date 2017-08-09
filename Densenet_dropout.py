@@ -20,6 +20,8 @@ weight_decay = 1e-4
 class_num = 10
 batch_size = 100
 
+total_epochs = 10
+
 
 def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
     with tf.name_scope(layer_name):
@@ -187,7 +189,6 @@ tf.summary.scalar('loss', cost)
 tf.summary.scalar('accuracy', accuracy)
 
 saver = tf.train.Saver(tf.global_variables())
-total_epochs = 10
 
 with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state('./model')
