@@ -4,6 +4,8 @@ Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using 
 * The code that applied *dropout* is ***Densenet_dropout.py***
 * There is a *slight difference*, I used ***AdamOptimizer***
 
+If you want to see the ***original author's code*** or ***other implementations***, refer [this](https://github.com/liuzhuang13/DenseNet)
+
 ## Requirements
 * Tensorflow 1.x
 * Python 3.x
@@ -94,7 +96,6 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 
 ### Image Net
 ![image_net](./assests/Image_net_.JPG)
-
 
 ## Author
 Junho Kim
