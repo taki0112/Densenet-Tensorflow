@@ -58,8 +58,8 @@ def Max_Pooling(x, pool_size=3, stride=2, padding='SAME'):
 def Concatenation(layers) :
     return tf.concat(layers, axis=3)
 
-def Fully_Connected_layer(x) :
-    return tf.layers.dense(inputs=x, units=class_num, name='fully_connected')
+def Linear(x) :
+    return tf.layers.dense(inputs=x, units=class_num, name='linear')
 
 class DenseNet() :
     def __init__(self, x, nb_blocks, filters, training) :
@@ -138,7 +138,7 @@ class DenseNet() :
 
         x = Relu(x)
         x = Global_Average_Pooling(x)
-        x = Fully_Connected_layer(x)
+        x = Linear(x)
 
         # x = tf.reshape(x, [-1,class_num])
         return x
