@@ -14,8 +14,6 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ```
 
 ## Idea
-### What is the "Dense Connectivity" ?
-![Dense Connectivity)(./assests/densenet.JPG)
 ### What is the "Global Average Pooling" ? 
 ```python
     width = np.shape(x)[1]
@@ -25,7 +23,17 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ````
 * If you use tflearn, please refer to this [link](http://tflearn.org/layers/conv/#global-average-pooling)
 
+### What is the "Dense Connectivity" ?
+![Dense_connectivity](./assests/densenet.JPG)
 
+### What is the "Densenet Architecture" ?
+![Dense_Architecture](./assests/densenet_Archi.JPG)
+
+### What is the "Dense Block" ?
+![Dense_block](./assests/Denseblock.JPG)
+
+## Compare Structure (CNN, ResNet, DenseNet)
+![compare](./assests/compare.JPG)
 
 ## Results
 * (***MNIST***) The highest test accuracy is ***99.2%*** (This result does ***not use dropout***)
@@ -38,6 +46,14 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
             x = self.transition_layer(x, scope='trans_'+str(i))
 ```
 
+### CIFAR-10
+![cifar_10](./assests/cifar_10.JPG)
+
+### CIFAR-100
+![cifar_100](./assests/cifar_100.JPG)
+
+### Image Net
+![image_net](./assests/Image_net.JPG)
 
 
 ## Author
