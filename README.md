@@ -7,7 +7,21 @@ Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using 
 ## Requirements
 * Tensorflow 1.x
 * Python 3.x
+* tflearn (If you are easy to use ***global average pooling***, you should install ***tflearn***
+```bash
+However, I implemented it using tf.layers, so don't worry
+And if you use tflearn, you may also need to install h5py and curses using pip.
+```
 
+## Optional
+### What is the Global Average Pooling ? 
+```python
+    width = np.shape(x)[1]
+    height = np.shape(x)[2]
+    pool_size = [width, height]
+    return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride)
+````
+* If you use tflearn, please refer to this [link](http://tflearn.org/layers/conv/#global-average-pooling)
 ## Results
 * This result does ***not use dropout***
 * The number of dense block layers is fixed to ***4***
