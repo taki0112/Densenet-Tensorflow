@@ -127,5 +127,9 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ### Image Net
 ![image_net](./assests/Image_net_.JPG)
 
+## Reference
+* [Korean](https://www.youtube.com/watch?v=fe2Vn0mwALI)
+* [English](https://www.youtube.com/watch?v=-W6y8xnd--U)
+
 ## Author
 Junho Kim
