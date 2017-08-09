@@ -20,11 +20,12 @@ class_num = 10
 batch_size = 100
 
 
+
+
 def conv_layer(input, filter, kernel, stride=[1, 1], layer_name="conv"):
     with tf.name_scope(layer_name):
         network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
         return network
-
 
 def Global_Average_Pooling(x, stride=1):
     """
@@ -47,7 +48,6 @@ def Batch_Normalization(x, training):
 def Relu(x):
     return tf.nn.relu(x)
 
-
 def Average_pooling(x, pool_size=2, stride=2, padding='SAME'):
     return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
@@ -66,7 +66,7 @@ class DenseNet() :
         self.nb_blocks = nb_blocks
         self.filters = filters
         self.training = training
-        self.model = self.build_model(x)
+        self.model = self.Dense_net(x)
 
 
     def bottleneck_layer(self, x, scope) :
@@ -112,7 +112,7 @@ class DenseNet() :
             return x
 
 
-    def build_model(self, input_x) :
+    def Dense_net(self, input_x) :
         x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
         x = Max_Pooling(x, pool_size=3, stride=2)
 
