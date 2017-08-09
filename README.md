@@ -74,6 +74,36 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
             return x
 ```
 
+### What is the "Bottleneck Layer" ?
+```python
+    def bottleneck_layer(self, x, scope):
+        with tf.name_scope(scope):
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = Drop_out(x, rate=dropout_rate, training=self.training)
+
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
+            x = Drop_out(x, rate=dropout_rate, training=self.training)
+            
+            return x
+```
+
+### What is the "Transition Layer" ?
+```python
+    def transition_layer(self, x, scope):
+        with tf.name_scope(scope):
+            x = Batch_Normalization(x, training=self.training)
+            x = Relu(x)
+            x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            x = Drop_out(x, rate=dropout_rate, training=self.training)
+            x = Average_pooling(x, pool_size=2, stride=2)
+
+            return x
+```
+
 ## Compare Structure (CNN, ResNet, DenseNet)
 ![compare](./assests/compare.JPG)
 
