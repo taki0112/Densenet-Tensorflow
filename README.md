@@ -64,7 +64,9 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
         x = self.dense_block(input_x=x, nb_layers=48, layer_name='dense_3')
         x = self.transition_layer(x, scope='trans_3')
 
-        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  
+        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final') 
+        
+        x = Batch_Normalization(x, training=self.training, scope='linear_batch')
         x = Relu(x)
         x = Global_Average_Pooling(x)
         x = Linear(x)
