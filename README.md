@@ -16,17 +16,17 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ## Issue
 * I used ***tf.contrib.layers.batch_norm***
 ```python
-def Batch_Normalization(x, training, scope):
-    with arg_scope([batch_norm],
-                   scope=scope,
-                   updates_collections=None,
-                   decay=0.9,
-                   center=True,
-                   scale=True,
-                   zero_debias_moving_mean=True) :
-        return tf.cond(training,
-                       lambda : batch_norm(inputs=x, is_training=training, reuse=None),
-                       lambda : batch_norm(inputs=x, is_training=training, reuse=True))
+    def Batch_Normalization(x, training, scope):
+        with arg_scope([batch_norm],
+                       scope=scope,
+                       updates_collections=None,
+                       decay=0.9,
+                       center=True,
+                       scale=True,
+                       zero_debias_moving_mean=True) :
+            return tf.cond(training,
+                           lambda : batch_norm(inputs=x, is_training=training, reuse=None),
+                           lambda : batch_norm(inputs=x, is_training=training, reuse=True))
 ```
 
 ## Idea
@@ -41,8 +41,8 @@ def Batch_Normalization(x, training, scope):
 ````
 * If you use tflearn, please refer to this [link](http://tflearn.org/layers/conv/#global-average-pooling)
 ```python
-def Global_Average_Pooling(x):
-    return tflearn.layers.conv.global_avg_pool(x, name='Global_avg_pooling')
+    def Global_Average_Pooling(x):
+        return tflearn.layers.conv.global_avg_pool(x, name='Global_avg_pooling')
 ```
 
 ### What is the "Dense Connectivity" ?
