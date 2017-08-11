@@ -11,7 +11,7 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 growth_k = 12
 nb_block = 3 # how many (dense blokc + Transition Layer) ?
 init_learning_rate = 1e-4
-epsilon = 1e-8 # AdamOptimizer epsilon
+epsilon = 1e-4 # AdamOptimizer epsilon
 dropout_rate = 0.2
 
 # Momentum Optimizer will use
@@ -186,10 +186,6 @@ but, I'll use AdamOptimizer
 """
 
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=epsilon)
-"""
-update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-with tf.control_dependencies(update_ops):
-"""
 train = optimizer.minimize(cost)
 
 
