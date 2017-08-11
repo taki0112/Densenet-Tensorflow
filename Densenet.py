@@ -9,7 +9,7 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # Hyperparameter
 growth_k = 12
-nb_block = 2 # how many (dense blokc + Transition Layer) ?
+nb_block = 2 # how many (dense block + Transition Layer) ?
 init_learning_rate = 1e-4
 epsilon = 1e-8 # AdamOptimizer epsilon
 dropout_rate = 0.2
@@ -152,7 +152,7 @@ class DenseNet():
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')
 
         # 100 Layer
-
+        x = Batch_Normalization(x, training=self.training, scope='linear_batch')
         x = Relu(x)
         x = Global_Average_Pooling(x)
         x = Linear(x)
