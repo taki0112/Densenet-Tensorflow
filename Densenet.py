@@ -9,9 +9,9 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # Hyperparameter
 growth_k = 12
-nb_block = 3 # how many (dense blokc + Transition Layer) ?
+nb_block = 2 # how many (dense blokc + Transition Layer) ?
 init_learning_rate = 1e-4
-epsilon = 1e-4 # AdamOptimizer epsilon
+epsilon = 1e-8 # AdamOptimizer epsilon
 dropout_rate = 0.2
 
 # Momentum Optimizer will use
@@ -135,11 +135,10 @@ class DenseNet():
 
         """
         for i in range(self.nb_blocks) :
-            # 6 -> 12 -> 32
+            # 6 -> 12 -> 48
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
         """
-
 
 
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
@@ -148,16 +147,17 @@ class DenseNet():
         x = self.dense_block(input_x=x, nb_layers=12, layer_name='dense_2')
         x = self.transition_layer(x, scope='trans_2')
 
-        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_3')
+        x = self.dense_block(input_x=x, nb_layers=48, layer_name='dense_3')
         x = self.transition_layer(x, scope='trans_3')
 
+        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')
 
-
-        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  # in paper, nb_layers = 32
+        # 100 Layer
 
         x = Relu(x)
         x = Global_Average_Pooling(x)
         x = Linear(x)
+
 
         x = tf.reshape(x, [-1, 10])
         return x
