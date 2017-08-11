@@ -61,11 +61,11 @@ def Drop_out(x, rate, training) :
 def Relu(x):
     return tf.nn.relu(x)
 
-def Average_pooling(x, pool_size=2, stride=2, padding='SAME'):
+def Average_pooling(x, pool_size=[2,2], stride=2, padding='SAME'):
     return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
 
-def Max_Pooling(x, pool_size=3, stride=2, padding='SAME'):
+def Max_Pooling(x, pool_size=[3,3], stride=2, padding='SAME'):
     return tf.layers.max_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
 def Concatenation(layers) :
@@ -89,12 +89,12 @@ class DenseNet():
         with tf.name_scope(scope):
             x = Batch_Normalization(x, training=self.training, scope=scope+'_batch1')
             x = Relu(x)
-            x = conv_layer(x, filter=4 * self.filters, kernel=1, layer_name=scope+'_conv1')
+            x = conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
 
             x = Batch_Normalization(x, training=self.training, scope=scope+'_batch2')
             x = Relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=3, layer_name=scope+'_conv2')
+            x = conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
 
             # print(x)
@@ -105,10 +105,9 @@ class DenseNet():
         with tf.name_scope(scope):
             x = Batch_Normalization(x, training=self.training, scope=scope+'_batch1')
             x = Relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=1, layer_name=scope+'_conv1')
+            x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
-            # maybe transition layer does not seem to use dropout.
-            x = Average_pooling(x, pool_size=2, stride=2)
+            x = Average_pooling(x, pool_size=[2,2], stride=2)
 
             return x
 
@@ -129,8 +128,8 @@ class DenseNet():
             return x
 
     def Dense_net(self, input_x):
-        x = conv_layer(input_x, filter=2 * self.filters, kernel=7, layer_name='conv0')
-        x = Max_Pooling(x, pool_size=3, stride=2)
+        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = Max_Pooling(x, pool_size=[3,3], stride=2)
 
 
         """
