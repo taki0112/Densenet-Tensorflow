@@ -1,7 +1,6 @@
 # Densenet-Tensorflow
 Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using **MNIST**
 * The code that implements *this paper* is ***Densenet.py***
-* The code that applied *dropout* is ***Densenet_dropout.py***
 * There is a *slight difference*, I used ***AdamOptimizer***
 
 If you want to see the ***original author's code*** or ***other implementations***, please refer to this [link](https://github.com/liuzhuang13/DenseNet)
@@ -13,6 +12,21 @@ If you want to see the ***original author's code*** or ***other implementations*
 ```bash
 However, I implemented it using tf.layers, so don't worry
 And if you use tflearn, you may also need to install h5py and curses using pip.
+```
+## Issue
+* I used ***tf.contrib.layers.batch_norm***
+```python
+def Batch_Normalization(x, training, scope):
+    with arg_scope([batch_norm],
+                   scope=scope,
+                   updates_collections=None,
+                   decay=0.9,
+                   center=True,
+                   scale=True,
+                   zero_debias_moving_mean=True) :
+        return tf.cond(training,
+                       lambda : batch_norm(inputs=x, is_training=training, reuse=None),
+                       lambda : batch_norm(inputs=x, is_training=training, reuse=True))
 ```
 
 ## Idea
