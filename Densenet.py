@@ -9,7 +9,7 @@ mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 # Hyperparameter
 growth_k = 12
-nb_block = 1 # how many (dense blokc + Transition Layer) ?
+nb_block = 3 # how many (dense blokc + Transition Layer) ?
 init_learning_rate = 1e-4
 epsilon = 1e-8 # AdamOptimizer epsilon
 dropout_rate = 0.2
@@ -133,15 +133,15 @@ class DenseNet():
         x = Max_Pooling(x, pool_size=3, stride=2)
 
 
-
+        """
         for i in range(self.nb_blocks) :
             # 6 -> 12 -> 32
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
-
-
-
         """
+
+
+
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
         x = self.transition_layer(x, scope='trans_1')
 
@@ -150,7 +150,7 @@ class DenseNet():
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_3')
         x = self.transition_layer(x, scope='trans_3')
-        """
+
 
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  # in paper, nb_layers = 32
