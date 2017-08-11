@@ -40,6 +40,10 @@ def Batch_Normalization(x, training, scope):
         # The stride value does not matter
 ````
 * If you use tflearn, please refer to this [link](http://tflearn.org/layers/conv/#global-average-pooling)
+```python
+def Global_Average_Pooling(x):
+    return tflearn.layers.conv.global_avg_pool(x, name='Global_avg_pooling')
+```
 
 ### What is the "Dense Connectivity" ?
 ![Dense_connectivity](./assests/densenet.JPG)
