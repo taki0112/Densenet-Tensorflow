@@ -53,7 +53,7 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ```python
     def Dense_net(self, input_x):
         x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
-        x = Max_Pooling(x, pool_size=3, stride=2)
+        x = Max_Pooling(x, pool_size=[3,3], stride=2)
 
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
         x = self.transition_layer(x, scope='trans_1')
@@ -61,7 +61,7 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
         x = self.dense_block(input_x=x, nb_layers=12, layer_name='dense_2')
         x = self.transition_layer(x, scope='trans_2')
 
-        x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_3')
+        x = self.dense_block(input_x=x, nb_layers=48, layer_name='dense_3')
         x = self.transition_layer(x, scope='trans_3')
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')  
@@ -96,12 +96,12 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ```python
     def bottleneck_layer(self, x, scope):
         with tf.name_scope(scope):
-            x = Batch_Normalization(x, training=self.training)
+            x = Batch_Normalization(x, training=self.training, scope=scope+'_batch1')
             x = Relu(x)
             x = conv_layer(x, filter=4 * self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
 
-            x = Batch_Normalization(x, training=self.training)
+            x = Batch_Normalization(x, training=self.training, scope=scope+'_batch2')
             x = Relu(x)
             x = conv_layer(x, filter=self.filters, kernel=[3,3], layer_name=scope+'_conv2')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
@@ -113,11 +113,11 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 ```python
     def transition_layer(self, x, scope):
         with tf.name_scope(scope):
-            x = Batch_Normalization(x, training=self.training)
+            x = Batch_Normalization(x, training=self.training, scope=scope+'_batch1')
             x = Relu(x)
             x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
-            x = Average_pooling(x, pool_size=2, stride=2)
+            x = Average_pooling(x, pool_size=[2,2], stride=2)
 
             return x
 ```
@@ -130,7 +130,7 @@ And if you use tflearn, you may also need to install h5py and curses using pip.
 * The number of dense block layers is fixed to ***4***
 ```python
     for i in range(self.nb_blocks) :
-        # original : 6 -> 12 -> 32
+        # original : 6 -> 12 -> 48
 
         x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
         x = self.transition_layer(x, scope='trans_'+str(i))
