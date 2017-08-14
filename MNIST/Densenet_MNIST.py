@@ -225,8 +225,6 @@ with tf.Session() as sess:
             }
 
             _, loss = sess.run([train, cost], feed_dict=train_feed_dict)
-            correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(label, 1))
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
             if step % 100 == 0:
                 global_step += 100
