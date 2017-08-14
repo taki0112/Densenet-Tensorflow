@@ -1,5 +1,5 @@
 # Densenet-Tensorflow
-Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using **MNIST**
+Tensorflow implementation of [Densenet](https://arxiv.org/abs/1608.06993) using **Cifar10, MNIST**
 * The code that implements *this paper* is ***Densenet.py***
 * There is a *slight difference*, I used ***AdamOptimizer***
 
@@ -11,7 +11,6 @@ If you want to see the ***original author's code*** or ***other implementations*
 * tflearn (If you are easy to use ***global average pooling***, you should install ***tflearn***
 ```bash
 However, I implemented it using tf.layers, so don't worry
-And if you use tflearn, you may also need to install h5py and curses using pip.
 ```
 ## Issue
 * I used ***tf.contrib.layers.batch_norm***
