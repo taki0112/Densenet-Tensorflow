@@ -61,11 +61,11 @@ def Drop_out(x, rate, training) :
 def Relu(x):
     return tf.nn.relu(x)
 
-def Average_pooling(x, pool_size=[2,2], stride=2, padding='SAME'):
+def Average_pooling(x, pool_size=[2,2], stride=2, padding='VALID'):
     return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
 
-def Max_Pooling(x, pool_size=[3,3], stride=2, padding='SAME'):
+def Max_Pooling(x, pool_size=[3,3], stride=2, padding='VALID'):
     return tf.layers.max_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
 def Concatenation(layers) :
@@ -128,7 +128,7 @@ class DenseNet():
             return x
 
     def Dense_net(self, input_x):
-        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], stride=2, layer_name='conv0')
         x = Max_Pooling(x, pool_size=[3,3], stride=2)
 
 

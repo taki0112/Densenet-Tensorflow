@@ -1,14 +1,15 @@
 import tensorflow as tf
 from tflearn.layers.conv import global_avg_pool
 from tensorflow.contrib.layers import batch_norm
+from tensorflow.contrib.layers import xavier_initializer
 from tensorflow.contrib.framework import arg_scope
 from cifar10 import *
 
 # Hyperparameter
-growth_k = 12
+growth_k = 24
 nb_block = 2 # how many (dense block + Transition Layer) ?
 init_learning_rate = 1e-4
-epsilon = 1e-8 # AdamOptimizer epsilon
+epsilon = 1e-4 # AdamOptimizer epsilon
 dropout_rate = 0.2
 
 # Momentum Optimizer will use
@@ -16,17 +17,18 @@ nesterov_momentum = 0.9
 weight_decay = 1e-4
 
 # Label & batch_size
-batch_size = 128
-iteration = 391
+batch_size = 64
+
+iteration = 782
 # batch_size * iteration = data_set_number
 
 test_iteration = 10
 
-total_epochs = 164
+total_epochs = 300
 
 def conv_layer(input, filter, kernel, stride=1, layer_name="conv"):
     with tf.name_scope(layer_name):
-        network = tf.layers.conv2d(inputs=input, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
+        network = tf.layers.conv2d(inputs=input, use_bias=False, filters=filter, kernel_size=kernel, strides=stride, padding='SAME')
         return network
 
 def Global_Average_Pooling(x, stride=1):
@@ -60,11 +62,11 @@ def Drop_out(x, rate, training) :
 def Relu(x):
     return tf.nn.relu(x)
 
-def Average_pooling(x, pool_size=[2,2], stride=2, padding='SAME'):
+def Average_pooling(x, pool_size=[2,2], stride=2, padding='VALID'):
     return tf.layers.average_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
 
-def Max_Pooling(x, pool_size=[3,3], stride=2, padding='SAME'):
+def Max_Pooling(x, pool_size=[3,3], stride=2, padding='VALID'):
     return tf.layers.max_pooling2d(inputs=x, pool_size=pool_size, strides=stride, padding=padding)
 
 def Concatenation(layers) :
@@ -73,14 +75,13 @@ def Concatenation(layers) :
 def Linear(x) :
     return tf.layers.dense(inputs=x, units=class_num, name='linear')
 
-
 def Evaluate(sess):
     test_acc = 0.0
     test_loss = 0.0
     test_pre_index = 0
     add = 1000
 
-    for step in range(test_iteration):
+    for it in range(test_iteration):
         test_batch_x = test_x[test_pre_index: pre_index + add]
         test_batch_y = test_y[test_pre_index: pre_index + add]
         test_pre_index = test_pre_index + add
@@ -154,19 +155,19 @@ class DenseNet():
             return x
 
     def Dense_net(self, input_x):
-        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], layer_name='conv0')
+        x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], stride=2, layer_name='conv0')
         x = Max_Pooling(x, pool_size=[3,3], stride=2)
 
 
-        """
+
         for i in range(self.nb_blocks) :
             # 6 -> 12 -> 48
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
+
+
+
         """
-
-
-
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
         x = self.transition_layer(x, scope='trans_1')
 
@@ -177,6 +178,7 @@ class DenseNet():
         x = self.transition_layer(x, scope='trans_3')
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')
+        """
 
 
         # 100 Layer
@@ -188,6 +190,7 @@ class DenseNet():
 
         x = tf.reshape(x, [-1, 10])
         return x
+
 
 
 train_x, train_y, test_x, test_y = prepare_data()
@@ -233,9 +236,10 @@ with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
     summary_writer = tf.summary.FileWriter('./logs', sess.graph)
+    merged = tf.summary.merge_all()
 
     epoch_learning_rate = init_learning_rate
-    for epoch in range(total_epochs):
+    for epoch in range(1, total_epochs + 1):
         if epoch == (total_epochs * 0.5) or epoch == (total_epochs * 0.75):
             epoch_learning_rate = epoch_learning_rate / 10
 
@@ -244,7 +248,7 @@ with tf.Session() as sess:
         train_loss = 0.0
 
 
-        for step in range(iteration):
+        for step in range(1, iteration + 1):
             if pre_index+batch_size < 50000 :
                 batch_x = train_x[pre_index : pre_index+batch_size]
                 batch_y = train_y[pre_index : pre_index+batch_size]
@@ -261,7 +265,7 @@ with tf.Session() as sess:
                 training_flag : True
             }
 
-            _, batch_loss = sess.run([train, cost], feed_dict=train_feed_dict)
+            _, batch_loss, weight_summary = sess.run([train, cost, merged], feed_dict=train_feed_dict)
             batch_acc = accuracy.eval(feed_dict=train_feed_dict)
 
             train_loss += batch_loss
@@ -279,16 +283,16 @@ with tf.Session() as sess:
 
                 summary_writer.add_summary(summary=train_summary, global_step=epoch)
                 summary_writer.add_summary(summary=test_summary, global_step=epoch)
+                summary_writer.add_summary(summary=weight_summary, global_step=epoch)
                 summary_writer.flush()
 
-                print(
-                    "iteration: %d/%d, train_loss: %.4f, train_acc: %.4f, test_loss: %.4f, test_acc: %.4f" % (
-                    step, iteration, train_loss, train_acc, test_loss, test_acc))
+                line = "epoch: %d/%d, train_loss: %.4f, train_acc: %.4f, test_loss: %.4f, test_acc: %.4f \n" % (
+                    epoch, total_epochs, train_loss, train_acc, test_loss, test_acc)
+                print(line)
 
-            else :
-                print("iteration: %d/%d, train_loss: %.4f, train_acc: %.4f" % (
-                step, iteration, train_loss / step, train_acc / step), end='\r')
-
+                with open('logs.txt', 'a') as f :
+                    f.write(line)
 
 
-    saver.save(sess=sess, save_path='./model/dense.ckpt')
+
+        saver.save(sess=sess, save_path='./model/dense.ckpt')
