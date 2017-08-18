@@ -156,18 +156,19 @@ class DenseNet():
 
     def Dense_net(self, input_x):
         x = conv_layer(input_x, filter=2 * self.filters, kernel=[7,7], stride=2, layer_name='conv0')
-        x = Max_Pooling(x, pool_size=[3,3], stride=2)
+        # x = Max_Pooling(x, pool_size=[3,3], stride=2)
 
 
-
+        """
         for i in range(self.nb_blocks) :
             # 6 -> 12 -> 48
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
-
-
-
         """
+
+
+
+
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
         x = self.transition_layer(x, scope='trans_1')
 
@@ -178,7 +179,7 @@ class DenseNet():
         x = self.transition_layer(x, scope='trans_3')
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')
-        """
+
 
 
         # 100 Layer
@@ -196,7 +197,7 @@ class DenseNet():
 train_x, train_y, test_x, test_y = prepare_data()
 train_x, test_x = color_preprocessing(train_x, test_x)
 
-# image_size = 32, img_channels = 3, class_num =10 in cifar10
+# image_size = 32, img_channels = 3, class_num = 10 in cifar10
 x = tf.placeholder(tf.float32, shape=[None, image_size, image_size, img_channels])
 label = tf.placeholder(tf.float32, shape=[None, class_num])
 
