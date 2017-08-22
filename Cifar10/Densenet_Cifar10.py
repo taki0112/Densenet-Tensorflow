@@ -82,8 +82,8 @@ def Evaluate(sess):
     add = 1000
 
     for it in range(test_iteration):
-        test_batch_x = test_x[test_pre_index: pre_index + add]
-        test_batch_y = test_y[test_pre_index: pre_index + add]
+        test_batch_x = test_x[test_pre_index: test_pre_index + add]
+        test_batch_y = test_y[test_pre_index: test_pre_index + add]
         test_pre_index = test_pre_index + add
 
         test_feed_dict = {
