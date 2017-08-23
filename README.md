@@ -146,8 +146,10 @@ However, I implemented it using tf.layers, so don't worry
 ### Image Net
 ![image_net](./assests/Image_net_.JPG)
 
+## Related works
+* [ResNeXt](https://github.com/taki0112/ResNeXt-Tensorflow)
 
-## Reference
+## References
 * [Korean](https://www.youtube.com/watch?v=fe2Vn0mwALI)
 * [English](https://www.youtube.com/watch?v=-W6y8xnd--U)
 * [Classification Datasets Results](http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html)
