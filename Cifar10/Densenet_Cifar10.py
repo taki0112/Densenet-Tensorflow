@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tflearn.layers.conv import global_avg_pool
-from tensorflow.contrib.layers import batch_norm
+from tensorflow.contrib.layers import batch_norm, flatten
 from tensorflow.contrib.layers import xavier_initializer
 from tensorflow.contrib.framework import arg_scope
 from cifar10 import *
@@ -186,10 +186,11 @@ class DenseNet():
         x = Batch_Normalization(x, training=self.training, scope='linear_batch')
         x = Relu(x)
         x = Global_Average_Pooling(x)
+        x = flatten(x)
         x = Linear(x)
 
 
-        x = tf.reshape(x, [-1, 10])
+        # x = tf.reshape(x, [-1, 10])
         return x
 
 
