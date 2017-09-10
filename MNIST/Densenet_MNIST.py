@@ -132,14 +132,14 @@ class DenseNet():
         x = Max_Pooling(x, pool_size=[3,3], stride=2)
 
 
-        """
+
         for i in range(self.nb_blocks) :
             # 6 -> 12 -> 48
             x = self.dense_block(input_x=x, nb_layers=4, layer_name='dense_'+str(i))
             x = self.transition_layer(x, scope='trans_'+str(i))
+
+
         """
-
-
         x = self.dense_block(input_x=x, nb_layers=6, layer_name='dense_1')
         x = self.transition_layer(x, scope='trans_1')
 
@@ -148,6 +148,7 @@ class DenseNet():
 
         x = self.dense_block(input_x=x, nb_layers=48, layer_name='dense_3')
         x = self.transition_layer(x, scope='trans_3')
+        """
 
         x = self.dense_block(input_x=x, nb_layers=32, layer_name='dense_final')
 
