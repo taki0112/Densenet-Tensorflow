@@ -238,7 +238,6 @@ with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
     summary_writer = tf.summary.FileWriter('./logs', sess.graph)
-    merged = tf.summary.merge_all()
 
     epoch_learning_rate = init_learning_rate
     for epoch in range(1, total_epochs + 1):
@@ -267,7 +266,7 @@ with tf.Session() as sess:
                 training_flag : True
             }
 
-            _, batch_loss, weight_summary = sess.run([train, cost, merged], feed_dict=train_feed_dict)
+            _, batch_loss = sess.run([train, cost], feed_dict=train_feed_dict)
             batch_acc = accuracy.eval(feed_dict=train_feed_dict)
 
             train_loss += batch_loss
@@ -285,7 +284,6 @@ with tf.Session() as sess:
 
                 summary_writer.add_summary(summary=train_summary, global_step=epoch)
                 summary_writer.add_summary(summary=test_summary, global_step=epoch)
-                summary_writer.add_summary(summary=weight_summary, global_step=epoch)
                 summary_writer.flush()
 
                 line = "epoch: %d/%d, train_loss: %.4f, train_acc: %.4f, test_loss: %.4f, test_acc: %.4f \n" % (
