@@ -148,6 +148,7 @@ However, I implemented it using tf.layers, so don't worry
 
 ## Related works
 * [ResNeXt](https://github.com/taki0112/ResNeXt-Tensorflow)
+* [SENet](https://github.com/taki0112/SENet-Tensorflow)
 
 ## References
 * [Korean](https://www.youtube.com/watch?v=fe2Vn0mwALI)
