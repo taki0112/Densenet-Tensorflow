@@ -147,8 +147,8 @@ However, I implemented it using tf.layers, so don't worry
 ![image_net](./assests/Image_net_.JPG)
 
 ## Related works
-* [ResNeXt](https://github.com/taki0112/ResNeXt-Tensorflow)
-* [SENet](https://github.com/taki0112/SENet-Tensorflow)
+* [ResNeXt-Tensorflow](https://github.com/taki0112/ResNeXt-Tensorflow)
+* [SENet-Tensorflow](https://github.com/taki0112/SENet-Tensorflow)
 
 ## References
 * [Korean](https://www.youtube.com/watch?v=fe2Vn0mwALI)
