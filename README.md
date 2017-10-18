@@ -28,6 +28,12 @@ However, I implemented it using tf.layers, so don't worry
                            lambda : batch_norm(inputs=x, is_training=training, reuse=True))
 ```
 
+* If not enough GPU memory, Please edit the code
+```python
+with tf.Session() as sess : NO
+with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess : OK
+```
+
 ## Idea
 ### What is the "Global Average Pooling" ? 
 ```python
