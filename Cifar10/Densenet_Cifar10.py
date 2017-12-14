@@ -152,6 +152,8 @@ class DenseNet():
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i + 1))
                 layers_concat.append(x)
 
+            x = Concatenation(layers_concat)
+
             return x
 
     def Dense_net(self, input_x):
