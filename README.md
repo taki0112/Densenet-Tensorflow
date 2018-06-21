@@ -96,6 +96,8 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess : OK
                 x = self.bottleneck_layer(x, scope=layer_name + '_bottleN_' + str(i + 1))
                 layers_concat.append(x)
 
+            x = Concatenation(layers_concat)
+            
             return x
 ```
 
