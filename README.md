@@ -34,6 +34,8 @@ with tf.Session() as sess : NO
 with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess : OK
 ```
 
+* https://github.com/taki0112/Densenet-Tensorflow/issues/10
+
 ## Idea
 ### What is the "Global Average Pooling" ? 
 ```python
