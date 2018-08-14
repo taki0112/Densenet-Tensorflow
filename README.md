@@ -157,6 +157,7 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess : OK
 ## Related works
 * [ResNeXt-Tensorflow](https://github.com/taki0112/ResNeXt-Tensorflow)
 * [SENet-Tensorflow](https://github.com/taki0112/SENet-Tensorflow)
+* [ResNet-Tensorflow](https://github.com/taki0112/ResNet-Tensorflow)
 
 ## References
 * [Korean](https://www.youtube.com/watch?v=fe2Vn0mwALI)
