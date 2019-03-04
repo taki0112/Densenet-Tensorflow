@@ -105,7 +105,12 @@ class DenseNet():
         with tf.name_scope(scope):
             x = Batch_Normalization(x, training=self.training, scope=scope+'_batch1')
             x = Relu(x)
-            x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            # x = conv_layer(x, filter=self.filters, kernel=[1,1], layer_name=scope+'_conv1')
+            
+            # https://github.com/taki0112/Densenet-Tensorflow/issues/10
+            
+            in_channel = x.shape[-1]
+            x = conv_layer(x, filter=in_channel*0.5, kernel=[1,1], layer_name=scope+'_conv1')
             x = Drop_out(x, rate=dropout_rate, training=self.training)
             x = Average_pooling(x, pool_size=[2,2], stride=2)
 
